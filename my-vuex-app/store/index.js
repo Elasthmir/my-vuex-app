@@ -97,7 +97,6 @@ export const actions = {
     async fetchData({ commit }) {
         try {
             const response = await axios.get('/api/data');
-
             commit('setData', response.data);
         } catch (error) {
             console.error('Failed to fetch data', error);

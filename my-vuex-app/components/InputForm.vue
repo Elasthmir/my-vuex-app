@@ -151,6 +151,7 @@ input{
 </style>
 
 <template>
+
   
   <div class="root"> 
     <div class="logo">
@@ -229,8 +230,8 @@ input{
 </template>
 
 <script>
-import fs from 'fs';
-import path from 'path';
+      import fs from 'fs';
+      import path from 'path';
 export default {
   data() {
     return {
@@ -247,7 +248,7 @@ export default {
     handleFileUpload(event) {
       const file = event.target.files[0];
       console.log('Selected file:', file);
-
+      
       // Sprawdź typ pliku
       if (!file.type.startsWith('image/')) {
         this.errorMessage = 'File must be an image';
@@ -297,36 +298,83 @@ export default {
       this.image = '';
       this.errorMessage = '';
     },
-    async printJson(){
-      try {
-        // Fetch JSON data from a file or API endpoint
-        const filePath = path.resolve(__dirname, '../data.json');
-        const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        console.log(jsonData);
-        
-        // Map JSON data to include only the columns you want to print
-        const filteredData = jsonData.map(({ firstName, lastName, phoneNumber, group }) => ({
-          firstName,
-          lastName,
-          phoneNumber,
-          group
-        }));
-
-        // Call printJS to print the data
-        printJS({
-          printable: filteredData,
-          properties: ['firstName', 'lastName', 'phoneNumber', 'group'],
-          type: 'json',
-          gridHeaderStyle: 'font-weight: bold; font-size: 14px;',
-          gridStyle: 'border: 1px solid #000; padding: 5px;',
-          header: 'User Information'
-        });
-
-      } 
-      catch (error) {
-        console.error('Failed to load JSON data:', error);
+    async printJson() {
+    try {
+      var loopCounter = 0
+      var counter = 0
+      const response = await fetch('/data.json'); // This points to the static/data.json file
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
+      const data = await response.json();
+      this.jsonData = data; // Optionally store it in a variable
+    
+      
+      for(let key of data){
+					if(data[loopCounter].group == 'aa') {
+						counter++
+					}
+					loopCounter++
+				};
+
+        let htmlContent = '<h1>User Data - First Part</h1>';
+        htmlContent += generateTable(data);
+
+        // Use printJS to print the combined HTML
+        printJS({
+            printable: htmlContent,
+            type: 'raw-html',
+            documentTitle: 'User Data'
+        });
+        function generateTable(data) {
+            let table = '<table style="width: 50%; border-collapse: collapse; font-size:12px;">';
+            table += '<thead><tr style="border: 1px solid black;">' +
+                     '<th style="border: 1px solid black; padding: 2px;">Grupa</th>' +
+                     '<th style="border: 1px solid black; padding: 2px;">Imię</th>' +
+                     '<th style="border: 1px solid black; padding: 2px;">Nazwisko</th>' +
+                     '<th style="border: 1px solid black; padding: 2px;">Nr tel.</th>' +
+                     '</tr></thead>';
+            table += '<tbody>';
+            //console.log(data)
+            data.forEach(item => {
+              console.log(item.members.length)
+              for(let index = 0; index < item.members.length; index++) {
+           
+                var groupName = '';
+                var styleGroupName = '';
+                console.log(item.members[index].firstName)
+                if(index==0){
+                  groupName = item.group
+                }
+                else{
+                  groupName = ''
+                }
+
+                if (groupName=='') {
+                  styleGroupName = "border-left: 1px solid black; padding: 2px; bottom"
+                }
+                else{
+                  styleGroupName = 'border: 1px solid black; padding: 2px; border-bottom:none;'
+                }
+                table += `<tr>
+                            <td style="${styleGroupName}">${groupName || ''}</td>
+                            <td style="border: 1px solid black; padding: 2px;">${item.members[index].firstName || ''}</td>
+							              <td style="border: 1px solid black; padding: 2px;">${item.members[index].lastName || ''}</td>
+                            <td style="border: 1px solid black; padding: 2px;">${item.members[index].phoneNumber || ''}</td>
+                          </tr>
+                        `;
+              }
+            });
+
+            table += '</tbody></table>';
+            return table;
+        }
+
+    } catch (error) {
+      console.error('Failed to load JSON data:', error);
     }
+        
+  }
     }
   }
 ;

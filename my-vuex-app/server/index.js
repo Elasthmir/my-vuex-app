@@ -6,7 +6,7 @@ const path = require('path');
 const app = express();
 app.use(bodyParser.json({ limit: '500mb' })); // Zwiększenie limitu rozmiaru JSON
 
-const dataFilePath = path.join(__dirname, '..', 'data.json');
+const dataFilePath = path.join(__dirname, '..', '/static/data.json');
 
 // Endpoint do odczytu danych
 app.get('/api/data', (req, res) => {

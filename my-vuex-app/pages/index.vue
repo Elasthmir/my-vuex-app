@@ -12,7 +12,10 @@
   }
 </style>
 <template>
+  
   <div class="content">
+    <link rel="stylesheet" href="https://printjs-4de6.kxcdn.com/print.min.css">
+    <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
     <InputForm />
     <DisplayData />
   </div>
