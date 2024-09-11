@@ -301,25 +301,46 @@ export default {
     async printJson() {
     try {
       var loopCounter = 0
-      var counter = 0
+      
       const response = await fetch('/data.json'); // This points to the static/data.json file
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
       this.jsonData = data; // Optionally store it in a variable
-    
-      
+      const arrayGroups = []
+      const arrayCounter = []
       for(let key of data){
-					if(data[loopCounter].group == 'aa') {
-						counter++
-					}
+        var counter = 0
+        arrayGroups.push(data[loopCounter].group)
+          for(let i = 0; i< data[loopCounter].members.length; i++){
+              if (data[loopCounter].group == arrayGroups[loopCounter]) {
+                counter++
+
+              }
+              
+              
+          }
+          arrayCounter.push(counter)
 					loopCounter++
 				};
+        let htmlContent = '';
+        for (let index = 0; index < data.length; index++) {
+          htmlContent += data[index].group
+          const part1 = data.slice(index, index+1);
+          htmlContent += generateTable(part1);
+        }
+         // First 2 elements
+        //const part2 = data.slice(1,data.length); // Remaining elements
+        //console.log(data.slice(0, 1))
+        
+        
 
-        let htmlContent = '<h1>User Data - First Part</h1>';
-        htmlContent += generateTable(data);
-
+       // htmlContent += `<h5>User Data - Second Part</h5><div style="display: flex; flex-direction: column;">`;
+       // htmlContent += generateTable(part2);
+        console.log(arrayCounter[0])
+        console.log(arrayCounter[1])
+ 
         // Use printJS to print the combined HTML
         printJS({
             printable: htmlContent,
@@ -327,22 +348,21 @@ export default {
             documentTitle: 'User Data'
         });
         function generateTable(data) {
-            let table = '<table style="width: 50%; border-collapse: collapse; font-size:12px;">';
-            table += '<thead><tr style="border: 1px solid black;">' +
-                     '<th style="border: 1px solid black; padding: 2px;">Grupa</th>' +
-                     '<th style="border: 1px solid black; padding: 2px;">Imię</th>' +
-                     '<th style="border: 1px solid black; padding: 2px;">Nazwisko</th>' +
-                     '<th style="border: 1px solid black; padding: 2px;">Nr tel.</th>' +
+            let table = '<table style="width: 40%; border-collapse: collapse; font-size:12px;   ">';
+            table += '<thead><tr style="border: 0px solid black;">' +
+                     '<th style="border: 0px solid black; padding: 2px;">Imię</th>' +
+                     '<th style="border: 0px solid black; padding: 2px;">Nazwisko</th>' +
+                     '<th style="border: 0px solid black; padding: 2px;">Nr tel.</th>' +
                      '</tr></thead>';
             table += '<tbody>';
             //console.log(data)
             data.forEach(item => {
-              console.log(item.members.length)
+             
               for(let index = 0; index < item.members.length; index++) {
            
-                var groupName = '';
-                var styleGroupName = '';
-                console.log(item.members[index].firstName)
+                var groupName = ''
+                var styleGroupName = ''
+             
                 if(index==0){
                   groupName = item.group
                 }
@@ -350,23 +370,18 @@ export default {
                   groupName = ''
                 }
 
-                if (groupName=='') {
-                  styleGroupName = "border-left: 1px solid black; padding: 2px; bottom"
-                }
-                else{
-                  styleGroupName = 'border: 1px solid black; padding: 2px; border-bottom:none;'
-                }
+                  styleGroupName = 'border: 1px solid black; padding: 2px;'
+                
                 table += `<tr>
-                            <td style="${styleGroupName}">${groupName || ''}</td>
-                            <td style="border: 1px solid black; padding: 2px;">${item.members[index].firstName || ''}</td>
-							              <td style="border: 1px solid black; padding: 2px;">${item.members[index].lastName || ''}</td>
-                            <td style="border: 1px solid black; padding: 2px;">${item.members[index].phoneNumber || ''}</td>
+                            <td style="border: 0px solid black; padding: 2px;">${item.members[index].firstName || ''}</td>
+							              <td style="border: 0px solid black; padding: 2px;">${item.members[index].lastName || ''}</td>
+                            <td style="border: 0px solid black; padding: 2px;">${item.members[index].phoneNumber || ''}</td>
                           </tr>
                         `;
               }
             });
 
-            table += '</tbody></table>';
+            table += '</tbody></table><div>';
             return table;
         }
 
