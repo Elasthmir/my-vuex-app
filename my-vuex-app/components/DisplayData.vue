@@ -107,7 +107,7 @@ form{
       <h2 class="groupName">{{ group.group }}
         <button @click="deleteGroup(group.group)">Delete Group</button>
       </h2>
-      <ul class="members">
+      <ul class="members" id="printArea">
         <li v-for="(member, idx) in group.members" :key="member.id" class="member " >
           <div @click="toggleMember(idx, group.group)" class="imageDiv">
             <div class="image button" @click="deleteMember(group.group, member.id)">
@@ -133,7 +133,7 @@ form{
 
 
       </form>
-    </div>z
+    </div>
 
           </div>
         </li>

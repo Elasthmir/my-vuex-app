@@ -148,6 +148,9 @@ input{
   margin: 30px
   
 }
+.printData{
+
+}
 </style>
 
 <template>
@@ -345,45 +348,50 @@ export default {
         printJS({
             printable: htmlContent,
             type: 'raw-html',
-            documentTitle: 'User Data'
+            documentTitle: 'User Data',
+            properties: [
+              { field: 'firstName', displayName: 'First Name' },
+              { field: 'lastName', displayName: 'Last Name' },
+              { field: 'phoneNumber', displayName: 'Phone Number' },
+              { field: 'image', displayName: 'Image', image: true }, // Set image: true
+            ],
         });
         function generateTable(data) {
-            let table = '<table style="width: 40%; border-collapse: collapse; font-size:12px;   ">';
-            table += '<thead><tr style="border: 0px solid black;">' +
-                     '<th style="border: 0px solid black; padding: 2px;">Imię</th>' +
-                     '<th style="border: 0px solid black; padding: 2px;">Nazwisko</th>' +
-                     '<th style="border: 0px solid black; padding: 2px;">Nr tel.</th>' +
-                     '</tr></thead>';
-            table += '<tbody>';
-            //console.log(data)
-            data.forEach(item => {
-             
-              for(let index = 0; index < item.members.length; index++) {
-           
-                var groupName = ''
-                var styleGroupName = ''
-             
-                if(index==0){
-                  groupName = item.group
-                }
-                else{
-                  groupName = ''
-                }
+          let table = '<table style="width: 100%; border-collapse: collapse; font-size:12px;">';
+          table += '<thead><tr>' +
+                  '<th style="border: 1px solid black; padding: 2px;">Imię</th>' +
+                  '<th style="border: 1px solid black; padding: 2px;">Nazwisko</th>' +
+                  '<th style="border: 1px solid black; padding: 2px;">Nr tel.</th>' +
+                  '<th style="border: 1px solid black; padding: 2px;">Image</th>' +
+                  '</tr></thead>';
+          table += '<tbody>';
 
-                  styleGroupName = 'border: 1px solid black; padding: 2px;'
-                
-                table += `<tr>
-                            <td style="border: 0px solid black; padding: 2px;">${item.members[index].firstName || ''}</td>
-							              <td style="border: 0px solid black; padding: 2px;">${item.members[index].lastName || ''}</td>
-                            <td style="border: 0px solid black; padding: 2px;">${item.members[index].phoneNumber || ''}</td>
-                          </tr>
-                        `;
+          data.forEach(item => {
+            item.members.forEach(member => {
+              // Ensure image data is correctly formatted
+              let imageData = member.image || '';
+              if (imageData && !imageData.startsWith('data:image/')) {
+                // Assume it's base64 data without prefix, add default prefix
+                imageData = 'data:image/png;base64,' + imageData;
               }
-            });
 
-            table += '</tbody></table><div>';
-            return table;
+              const imgTag = imageData
+                ? `<img src="${imageData}" alt="Image" style="max-width:100px; max-height:100px;">`
+                : '';
+
+              table += `<tr>
+                          <td style="border: 1px solid black; padding: 2px;">${member.firstName || ''}</td>
+                          <td style="border: 1px solid black; padding: 2px;">${member.lastName || ''}</td>
+                          <td style="border: 1px solid black; padding: 2px;">${member.phoneNumber || ''}</td>
+                          <td style="border: 1px solid black; padding: 2px;">${imgTag}</td>
+                        </tr>`;
+            });
+          });
+
+          table += '</tbody></table>';
+          return table;
         }
+
 
     } catch (error) {
       console.error('Failed to load JSON data:', error);
