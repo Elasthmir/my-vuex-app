@@ -148,7 +148,8 @@ input{
   margin: 30px
   
 }
-.printData{
+.membersToPrint{
+  display: flex;
 
 }
 </style>
@@ -327,13 +328,13 @@ export default {
           arrayCounter.push(counter)
 					loopCounter++
 				};
-        let htmlContent = '';
+        let htmlContent = '<div style=" font-family: Arial, Helvetica, sans-serif; align-items:center;" >'; //
         for (let index = 0; index < data.length; index++) {
-          htmlContent += data[index].group
+          htmlContent += "<h1>" + data[index].group +"</h1><br/>"
           const part1 = data.slice(index, index+1);
           htmlContent += generateTable(part1);
         }
-         // First 2 elements
+        // First 2 elements
         //const part2 = data.slice(1,data.length); // Remaining elements
         //console.log(data.slice(0, 1))
         
@@ -357,14 +358,8 @@ export default {
             ],
         });
         function generateTable(data) {
-          let table = '<table style="width: 100%; border-collapse: collapse; font-size:12px;">';
-          table += '<thead><tr>' +
-                  '<th style="border: 1px solid black; padding: 2px;">Imię</th>' +
-                  '<th style="border: 1px solid black; padding: 2px;">Nazwisko</th>' +
-                  '<th style="border: 1px solid black; padding: 2px;">Nr tel.</th>' +
-                  '<th style="border: 1px solid black; padding: 2px;">Image</th>' +
-                  '</tr></thead>';
-          table += '<tbody>';
+          let table = '<div class="membersToPrint" style="display: grid; grid-template-columns: repeat(15, 1fr); align-items:center;">';
+ 
 
           data.forEach(item => {
             item.members.forEach(member => {
@@ -379,16 +374,19 @@ export default {
                 ? `<img src="${imageData}" alt="Image" style="max-width:100px; max-height:100px;">`
                 : '';
 
-              table += `<tr>
-                          <td style="border: 1px solid black; padding: 2px;">${member.firstName || ''}</td>
-                          <td style="border: 1px solid black; padding: 2px;">${member.lastName || ''}</td>
-                          <td style="border: 1px solid black; padding: 2px;">${member.phoneNumber || ''}</td>
-                          <td style="border: 1px solid black; padding: 2px;">${imgTag}</td>
-                        </tr>`;
+              table += `
+                        <div class="memberToPrint" style="display:grid; gap:5px;">
+                          <span style="padding: 2px;">${imgTag}</span>
+                          <span style="padding: 2px;">${member.firstName || ''}</span>
+                          <span style="padding: 2px;">${member.lastName || ''}</span>
+                          <span style="padding: 2px;">${member.phoneNumber || ''}</span>
+                          
+                        </div>
+                      `;
             });
           });
-
-          table += '</tbody></table>';
+          table += '</div>';
+     
           return table;
         }
 
