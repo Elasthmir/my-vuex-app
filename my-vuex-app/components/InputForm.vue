@@ -303,99 +303,113 @@ export default {
       this.errorMessage = '';
     },
     async printJson() {
-    try {
-      var loopCounter = 0
-      
-      const response = await fetch('/data.json'); // This points to the static/data.json file
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      this.jsonData = data; // Optionally store it in a variable
-      const arrayGroups = []
-      const arrayCounter = []
-      for(let key of data){
-        var counter = 0
-        arrayGroups.push(data[loopCounter].group)
-          for(let i = 0; i< data[loopCounter].members.length; i++){
-              if (data[loopCounter].group == arrayGroups[loopCounter]) {
-                counter++
-
-              }
-              
-              
-          }
-          arrayCounter.push(counter)
-					loopCounter++
-				};
-        let htmlContent = '<div style=" font-family: Arial, Helvetica, sans-serif; align-items:center;" >'; //
-        for (let index = 0; index < data.length; index++) {
-          htmlContent += "<h1>" + data[index].group +"</h1><br/>"
-          const part1 = data.slice(index, index+1);
-          htmlContent += generateTable(part1);
-        }
-        // First 2 elements
-        //const part2 = data.slice(1,data.length); // Remaining elements
-        //console.log(data.slice(0, 1))
-        
-        
-
-       // htmlContent += `<h5>User Data - Second Part</h5><div style="display: flex; flex-direction: column;">`;
-       // htmlContent += generateTable(part2);
-        console.log(arrayCounter[0])
-        console.log(arrayCounter[1])
- 
-        // Use printJS to print the combined HTML
-        printJS({
-            printable: htmlContent,
-            type: 'raw-html',
-            documentTitle: 'User Data',
-            properties: [
-              { field: 'firstName', displayName: 'First Name' },
-              { field: 'lastName', displayName: 'Last Name' },
-              { field: 'phoneNumber', displayName: 'Phone Number' },
-              { field: 'image', displayName: 'Image', image: true }, // Set image: true
-            ],
-        });
-        function generateTable(data) {
-          let table = '<div class="membersToPrint" style="display: grid; grid-template-columns: repeat(15, 1fr); align-items:center;">';
- 
-
-          data.forEach(item => {
-            item.members.forEach(member => {
-              // Ensure image data is correctly formatted
-              let imageData = member.image || '';
-              if (imageData && !imageData.startsWith('data:image/')) {
-                // Assume it's base64 data without prefix, add default prefix
-                imageData = 'data:image/png;base64,' + imageData;
-              }
-
-              const imgTag = imageData
-                ? `<img src="${imageData}" alt="Image" style="max-width:100px; max-height:100px;">`
-                : '';
-
-              table += `
-                        <div class="memberToPrint" style="display:grid; gap:5px;">
-                          <span style="padding: 2px;">${imgTag}</span>
-                          <span style="padding: 2px;">${member.firstName || ''}</span>
-                          <span style="padding: 2px;">${member.lastName || ''}</span>
-                          <span style="padding: 2px;">${member.phoneNumber || ''}</span>
-                          
-                        </div>
-                      `;
-            });
-          });
-          table += '</div>';
-     
-          return table;
-        }
-
-
-    } catch (error) {
-      console.error('Failed to load JSON data:', error);
+  try {
+    const response = await fetch('/data.json'); // This points to the static/data.json file
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
-        
+    const data = await response.json();
+    this.jsonData = data;
+
+    let htmlContent = `
+      <style>
+        @media print {
+          body {
+            font-size:12px;
+            font-family: Arial, Helvetica, sans-serif;
+            width: 100%;
+            page-break-inside: auto;
+          }
+          .groupsContainer {
+            display: flex;
+            flex-wrap: wrap; /* Allow groups to wrap horizontally */
+            align-items: flex-start;
+            width: 100%;
+            page-break-inside: auto;
+            justify-content:center;
+          }
+          .groupToPrint {
+            display: inline-block;
+            page-break-inside: auto;
+          }
+          .membersToPrint {
+            width: auto;
+            page-break-inside: auto;
+          }
+          .memberToPrint {
+            display: inline-block;
+            vertical-align: top;
+            width: 120px;
+            height: auto;
+            text-align: center;
+            box-sizing: border-box;
+            page-break-inside: auto;
+          }
+          .memberToPrint img {
+          }
+          h2 {
+            page-break-inside: auto;
+            margin-top: 0;
+          }
+        }
+      </style>
+      <div class="groupsContainer">`; // Wrapping container for groups
+
+    for (let index = 0; index < data.length; index++) {
+      htmlContent += `
+        <div class="groupToPrint">
+          <center>
+            <h2>${data[index].group}</h2>
+          </center>
+          <br/>
+          <center>
+            <div class="membersToPrint">
+              ${generateTable(data.slice(index, index + 1))}
+            </div>
+          </center>
+        </div>`;
+    }
+
+    function generateTable(data) {
+      let table = '';
+
+      data.forEach(item => {
+        item.members.forEach(member => {
+          let imageData = member.image || '';
+          if (imageData && !imageData.startsWith('data:image/')) {
+            imageData = 'data:image/png;base64,' + imageData;
+          }
+
+          const imgTag = imageData
+            ? `<img src="${imageData}" alt="Image" style="max-width:70px; max-height:80px;">`
+            : '';
+
+          table += `
+            <div class="memberToPrint">
+              <span>${imgTag}</span><br/>
+              <span>${member.firstName || ''}</span>
+              <span>${member.lastName || ''}</span>
+              <span>${member.phoneNumber || ''}</span>
+            </div>
+          `;
+        });
+      });
+
+      return table;
+    }
+
+    printJS({
+      printable: htmlContent,
+      type: 'raw-html',
+      documentTitle: 'User Data'
+    });
+  } catch (error) {
+    console.error('Failed to load JSON data:', error);
   }
+}
+
+
+
     }
   }
 ;
